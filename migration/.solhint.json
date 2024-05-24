@@ -1,0 +1,12 @@
+{
+  "extends": "solhint:default",
+  "rules": {
+    "max-line-length": ["warn", 120],
+    "code-complexity": ["warn", 7],
+    "function-max-lines": ["warn", 50],
+    "no-unused-vars": "warn",
+    "reason-string": ["warn",{"maxLength":64}],
+    "comprehensive-interface": "off",
+    "reentrancy": "warn"
+  }
+}

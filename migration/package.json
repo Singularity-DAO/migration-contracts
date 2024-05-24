@@ -1,0 +1,43 @@
+{
+  "name": "@singularitydao/token-migration",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SingularityDAO token migration contracts and tests",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "./node_modules/solhint/solhint.js 'contracts/**/*.sol'",
+    "compile": "npx hardhat compile --force",
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
+    "run-ts": "npx ts-node -r tsconfig-paths/register",
+    "deploy": "npx hardhat run scripts/deploy.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Singularity-DAO/token-migration.git"
+  },
+  "author": "SingularityDAO",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "dotenv": "^16.0.3",
+    "eth-gas-reporter": "^0.2.27",
+    "ethers": "^6.11.1",
+    "fs-extra": "^5.0.0",
+    "hardhat": "^2.22.2",
+    "hardhat-contract-sizer": "^2.8.0",
+    "solhint": "^3.4.1",
+    "solidity-coverage": "^0.8.2",
+    "ts-generator": "^0.1.1",
+    "ts-node": "^10.0.0",
+    "tsconfig-paths": "^4.2.0"
+  }
+}

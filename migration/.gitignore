@@ -1,0 +1,10 @@
+.env
+package-lock.json
+node_modules/
+coverage
+coverage.json
+typechain-types
+artifacts/
+cache/
+.DS_Store
+*~
