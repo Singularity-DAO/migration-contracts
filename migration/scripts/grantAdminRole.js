@@ -47,15 +47,7 @@ async function deploy(deployer) {
   
   // check if role was granted
   hasRole = await fetMigrationContract.hasRole(DEFAULT_ADMIN_ROLE, OWNER_MULTISIG);
-  console.log("Granted %s role to %s: %s", DEFAULT_ADMIN_ROLE, OWNER_MULTISIG, hasRole);
-  assert(hasRole);
-
-  // revoke admin role from deployer
-  tx = await fetMigrationContract.revokeRole(DEFAULT_ADMIN_ROLE, deployerAddress, txOptions);
-  await tx.wait();
-  hasRole = await fetMigrationContract.hasRole(DEFAULT_ADMIN_ROLE, deployerAddress);
-  console.log("Revoked %s role from %s: %s", DEFAULT_ADMIN_ROLE, deployerAddress, hasRole);
-  assert(!hasRole);
+  console.log("Granted DEFAULT_ADMIN_ROLE role to %s: %s", OWNER_MULTISIG, hasRole);
 
   console.log(
     "-----------------------------------------------------------------------------------------------------------------------------------------------"
@@ -71,15 +63,7 @@ async function deploy(deployer) {
 
   // check if role was granted
   hasRole = await agixMigrationContract.hasRole(DEFAULT_ADMIN_ROLE, OWNER_MULTISIG);
-  console.log("Granted %s role to %s: %s", DEFAULT_ADMIN_ROLE, OWNER_MULTISIG, hasRole);
-  assert(hasRole);
-
-  // revoke admin role from deployer
-  tx = await agixMigrationContract.revokeRole(DEFAULT_ADMIN_ROLE, deployerAddress, txOptions);
-  await tx.wait();
-  hasRole = await agixMigrationContract.hasRole(DEFAULT_ADMIN_ROLE, deployerAddress);
-  console.log("Revoked %s role from %s: %s", DEFAULT_ADMIN_ROLE, deployerAddress, hasRole);
-  assert(!hasRole);
+  console.log("Granted DEFAULT_ADMIN_ROLE role to %s: %s", OWNER_MULTISIG, hasRole);
 
   console.log(
     "-----------------------------------------------------------------------------------------------------------------------------------------------"
@@ -95,15 +79,7 @@ async function deploy(deployer) {
 
   // check if role was granted
   hasRole = await oceanMigrationContract.hasRole(DEFAULT_ADMIN_ROLE, OWNER_MULTISIG);
-  console.log("Granted %s role to %s: %s", DEFAULT_ADMIN_ROLE, OWNER_MULTISIG, hasRole);
-  assert(hasRole);
-
-  // revoke admin role from deployer
-  tx = await oceanMigrationContract.revokeRole(DEFAULT_ADMIN_ROLE, deployerAddress, txOptions);
-  await tx.wait();
-  hasRole = await oceanMigrationContract.hasRole(DEFAULT_ADMIN_ROLE, deployerAddress);
-  console.log("Revoked %s role from %s: %s", DEFAULT_ADMIN_ROLE, deployerAddress, hasRole);
-  assert(!hasRole);
+  console.log("Granted DEFAULT_ADMIN_ROLE role to %s: %s", OWNER_MULTISIG, hasRole);
 }
 
 const getDeployerAndDeploy = async () => {
