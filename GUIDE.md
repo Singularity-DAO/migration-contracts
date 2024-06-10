@@ -79,13 +79,31 @@ Once the deployments are complete, verify the contracts on Etherscan by running 
 
 ### In the Token Directory:
 
+source the .env file by running:
+
+```sh
+source ../.env
+```
+
+then run:
+
 ```sh
 npx hardhat verify $ETH_ASI --network sepolia
 ```
 
 ### In the Migration Directory:
 
+source the .env file by running:
+
 ```sh
+source ../.env
+```
+
+then run:
+
+```sh
+npx hardhat verify $MIGRATION_TOKEN_IMPL --network sepolia
+
 npx hardhat verify $MIGRATION_FET_ADDRESS --network sepolia
 npx hardhat verify $MIGRATION_AGIX_ADDRESS --network sepolia
 npx hardhat verify $MIGRATION_OCEAN_ADDRESS --network sepolia
