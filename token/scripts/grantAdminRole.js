@@ -5,7 +5,6 @@ let provider;
 let tx;
 let hasRole;
 
-
 const OWNER_MULTISIG = process.env.OWNER_MULTISIG;
 
 const ETH_ASI = process.env.ETH_ASI;
@@ -40,44 +39,92 @@ async function deploy(deployer) {
   const MINTER_ROLE = await asiToken.MINTER_ROLE();
   const PAUSE_ROLE = await asiToken.PAUSE_ROLE();
 
-  // grant admin role to OWNER_MULTISIG
-  tx = await asiToken.grantRole(DEFAULT_ADMIN_ROLE, OWNER_MULTISIG, txOptions);
-  await tx.wait();
-
-  hasRole = await asiToken.hasRole(DEFAULT_ADMIN_ROLE, OWNER_MULTISIG);
-  console.log("OWNER_MULTISIG has DEFAULT_ADMIN_ROLE: ", hasRole);
-
   console.log(
     "-----------------------------------------------------------------------------------------------------------------------------------------------"
   );
 
   // grant minter role to OWNER_MULTISIG
+  console.log("Granting MINTER_ROLE to OWNER_MULTISIG")
   tx = await asiToken.grantRole(MINTER_ROLE, OWNER_MULTISIG, txOptions);
   await tx.wait();
 
   hasRole = await asiToken.hasRole(MINTER_ROLE, OWNER_MULTISIG);
   console.log("OWNER_MULTISIG has MINTER_ROLE: ", hasRole);
+  if (!hasRole) {
+    throw Error("Failed to grant MINTER_ROLE to OWNER_MULTISIG");
+  }
+
+  console.log(
+    "-----------------------------------------------------------------------------------------------------------------------------------------------"
+  );
+
+  // renounce minter role from deployer
+  console.log("Renouncing MINTER_ROLE from deployer")
+  tx = await asiToken.renounceRole(MINTER_ROLE, deployerAddress, txOptions);
+  await tx.wait();
+  hasRole = await asiToken.hasRole(MINTER_ROLE, deployerAddress);
+  console.log("deployer has MINTER_ROLE: ", hasRole);
+  if (hasRole) {
+    throw Error("Failed to renounce MINTER_ROLE from deployer");
+  }
 
   console.log(
     "-----------------------------------------------------------------------------------------------------------------------------------------------"
   );
 
   // grant pause role to OWNER_MULTISIG
+  console.log("Granting PAUSE_ROLE to OWNER_MULTISIG")
   tx = await asiToken.grantRole(PAUSE_ROLE, OWNER_MULTISIG, txOptions);
   await tx.wait();
 
   hasRole = await asiToken.hasRole(PAUSE_ROLE, OWNER_MULTISIG);
   console.log("OWNER_MULTISIG has PAUSE_ROLE: ", hasRole);
+  if (!hasRole) {
+    throw Error("Failed to grant PAUSE_ROLE to OWNER_MULTISIG");
+  }
 
   console.log(
     "-----------------------------------------------------------------------------------------------------------------------------------------------"
   );
 
-  // revoke admin role from deployer
-  tx = await asiToken.revokeRole(DEFAULT_ADMIN_ROLE, deployerAddress, txOptions);
+  // renounce pause role from deployer
+  console.log("Renouncing PAUSE_ROLE from deployer")
+  tx = await asiToken.renounceRole(PAUSE_ROLE, deployerAddress, txOptions);
+  await tx.wait();
+  hasRole = await asiToken.hasRole(PAUSE_ROLE, deployerAddress);
+  console.log("deployer has PAUSE_ROLE: ", hasRole);
+  if (hasRole) {
+    throw Error("Failed to renounce PAUSE_ROLE from deployer");
+  }
+
+  console.log(
+    "-----------------------------------------------------------------------------------------------------------------------------------------------"
+  );
+
+  // grant admin role to OWNER_MULTISIG
+  console.log("Granting DEFAULT_ADMIN_ROLE to OWNER_MULTISIG")
+  tx = await asiToken.grantRole(DEFAULT_ADMIN_ROLE, OWNER_MULTISIG, txOptions);
+  await tx.wait();
+
+  hasRole = await asiToken.hasRole(DEFAULT_ADMIN_ROLE, OWNER_MULTISIG);
+  console.log("OWNER_MULTISIG has DEFAULT_ADMIN_ROLE: ", hasRole);
+  if (!hasRole) {
+    throw Error("Failed to grant DEFAULT_ADMIN_ROLE to OWNER_MULTISIG");
+  }
+
+  console.log(
+    "-----------------------------------------------------------------------------------------------------------------------------------------------"
+  );
+
+  // renounce admin role from deployer
+  console.log("Renouncing DEFAULT_ADMIN_ROLE from deployer")
+  tx = await asiToken.renounceRole(DEFAULT_ADMIN_ROLE, deployerAddress, txOptions);
   await tx.wait();
   hasRole = await asiToken.hasRole(DEFAULT_ADMIN_ROLE, deployerAddress);  
   console.log("deployer has DEFAULT_ADMIN_ROLE: ", hasRole);
+  if (hasRole) {
+    throw Error("Failed to renounce DEFAULT_ADMIN_ROLE from deployer");
+  }
 }
 
 const getDeployerAndDeploy = async () => {
