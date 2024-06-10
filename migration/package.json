@@ -12,7 +12,8 @@
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",
     "run-ts": "npx ts-node -r tsconfig-paths/register",
-    "deploy": "npx hardhat run scripts/deploy.js"
+    "deploy": "npx hardhat run scripts/deploy.js",
+    "grantAdminRole": "npx hardhat run scripts/grantAdminRole.js"
   },
   "repository": {
     "type": "git",

@@ -9,7 +9,8 @@
     "coverage": "npx hardhat coverage",
     "run-ts": "npx ts-node -r tsconfig-paths/register",
     "deploy": "npx hardhat run scripts/deploy.js",
-    "grantRole": "npx hardhat run scripts/grantRole.js"
+    "transfer": "npx hardhat run scripts/transfer.js",
+    "grantAdminRole": "npx hardhat run scripts/grantAdminRole.js"
   },
   "repository": {
     "type": "git",

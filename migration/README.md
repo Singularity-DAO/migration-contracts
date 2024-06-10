@@ -58,8 +58,3 @@ Once everything is set up, deploy the token by running:
 ```sh
 npm run deploy
 ```
-
-This will deploy the migration contracts with the specified configurations.
-## Grant Roles
-
-We now need to grant the minting role to the migration contracts by running the grantRole.js script in the [token repository](https://github.com/Singularity-DAO/migration-contracts/token/). Ensure you complete all steps outlined in the token contract README file.
