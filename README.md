@@ -7,9 +7,4 @@ Token contract and a contract to migrate them
 
 # Usage
 
-1. Deploy Token contract. Follow [this guide](https://github.com/Singularity-DAO/migration-contracts/tree/main/token#readme)
-2. Deploy Migration contracts [this guide](https://github.com/Singularity-DAO/migration-contracts/tree/main/migration#readme)
-3. Grant minting role to migration contract
-4. Migrate
-
-
+Follow [GUIDE](./GUIDE.md)

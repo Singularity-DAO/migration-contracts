@@ -4,6 +4,8 @@ const { JsonRpcProvider, parseUnits } = require("ethers");
 let provider;
 let tx;
 
+const OWNER_MULTISIG = process.env.OWNER_MULTISIG;
+
 const ETH_ASI = process.env.ETH_ASI; // mainnet ASI (forked)
 
 const ETH_AGIX = process.env.ETH_AGIX; // mainnet AGIX
