@@ -15,6 +15,19 @@ const config: HardhatUserConfig = {
       evmVersion: "paris", // need this, because solidity 0.8.20 introduced an opcode PUSH0 which is not yet supported by all L2
     },
   },
+  networks: {
+    mainnet: {
+      url: process.env.RPC,
+      accounts: [process.env.PRIVATE_KEY || ""],
+    },
+    sepolia: {
+      url: process.env.RPC,
+      accounts: [process.env.PRIVATE_KEY || ""],
+    }
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  }
 };
 
 export default config;
