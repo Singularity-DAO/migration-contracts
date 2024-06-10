@@ -5,7 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "../interfaces/IMintableERC20.sol";
 
 /*
- * @title Test token
+ * @title Test token contract which is solely designated for testing purposes
+ * @dev should not be deployed in a live environment
  * @notice mintable and burnable test token
  */
 contract TestToken is IMintableERC20, ERC20Burnable {

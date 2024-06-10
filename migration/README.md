@@ -23,7 +23,8 @@ npm run coverage  # Generate test coverage report
 
 ## Deployment
 
-We are going to deploy the migration contracts for the tokens.
+We are going to deploy the migration contracts for the AGIX, FET, and OCEAN tokens. 
+Ensure that ASI token has been deployed by following instructions in [token repository](https://github.com/Singularity-DAO/migration-contracts/token/). Ensure you complete all steps outlined in the token contract README file.
 
 ### Setup
 
@@ -32,17 +33,15 @@ We are going to deploy the migration contracts for the tokens.
    ```plaintext
    RPC=<Your_RPC_URL>
    PRIVATE_KEY=<Your_Private_Key>
+   ETH_AGIX = <AGIX Address>
+   ETH_FET = <FET Address>
+   ETH_OCEAN = <OCEAN Address>
+   ETH_ASI =  <ASI Address>
    ```
 
-2. Copy the newly deployed token address from there and paste it into the `scripts/deploy.js` file as shown below:
+2. Ensure that all other addresses and configurations in the `deploy.js` file are correct.
 
-   ```javascript
-   const ETH_TOKEN = "address goes here";
-   ```
-
-3. Ensure that all other addresses and configurations in the `deploy.js` file are correct.
-
-4. If needed, you can also change the transaction option settings in the `deploy.js` file:
+3. If needed, you can also change the transaction option settings in the `deploy.js` file:
 
    ```javascript
    const txOptions = {
@@ -61,3 +60,6 @@ npm run deploy
 ```
 
 This will deploy the migration contracts with the specified configurations.
+## Grant Roles
+
+We now need to grant the minting role to the migration contracts by running the grantRole.js script in the [token repository](https://github.com/Singularity-DAO/migration-contracts/token/). Ensure you complete all steps outlined in the token contract README file.

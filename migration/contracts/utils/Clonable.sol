@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-contract Clonable {
-    address private _owner;
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+/*
+ * @title a contract which implements EIP-1167 minimal proxy pattern and adds role based access control
+ * @notice grants DEFAULT_ADMIN_ROLE when deploying the implementation contract and after cloning a new instance
+ */
+contract Clonable is AccessControl {
+
+    bool private initializedRoleBasedAccessControl;
 
     event Cloned(address newInstance);
+
+    error AlreadyInitializedRBAC();
 
     /*
      * @notice marked the constructor function as payable, because it costs less gas to execute,
@@ -13,29 +22,13 @@ contract Clonable {
      * and the project itself would not pass any funds.
      */
     constructor() payable {
-        _owner = msg.sender;
+        setDefaultAdmin(msg.sender);
     }
     
-    function owner() external view returns(address) {
-        return _owner;
-    }
-
-    modifier onlyOwner() {
-        require(_owner == msg.sender, "ERR_OWNER");
-        _;
-    }
-
-    function setOwnerAfterClone(address initialOwner) external {
-        require(_owner == address(0), "ERR_REINIT");
-        _owner = initialOwner;
-    }
-
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "ERR_ZERO");
-        _owner = newOwner;
-    }
-
-    function clone(address newOwner) public returns (address newInstance){
+    /*
+     * @notice clones a new instance of this contract and grant default admin roler to given defaultAdmin
+     */
+    function clone(address defaultAdmin) public returns (address newInstance){
         // Copied from https://github.com/optionality/clone-factory/blob/master/contracts/CloneFactory.sol
         bytes20 addressBytes = bytes20(address(this));
         assembly {
@@ -47,11 +40,25 @@ contract Clonable {
             newInstance := create(0, clone_code, 0x37)
         }
         emit Cloned(newInstance);
-        Clonable(newInstance).setOwnerAfterClone(newOwner);
+        Clonable(newInstance).setDefaultAdmin(defaultAdmin);
     }
     
+    /*
+     * @notice clones a new instance of this contract and grant default admin roler to caller
+     */
     function getClone() external returns (address) {
         return clone(msg.sender);
     }
+
+    /*
+     * @dev initializes DEFAULT_ADMIN_ROLE (can be initialized only once)
+     * @notice this function does emit a RoleGranted event in AccessControl._grantRole
+     */
+    function setDefaultAdmin(address initialAdmin) public {
+        if (initializedRoleBasedAccessControl) revert AlreadyInitializedRBAC();
+        _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
+        initializedRoleBasedAccessControl = true;
+    }
+
 }
 

@@ -3,6 +3,7 @@ pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "./interfaces/IBurnableERC20.sol";
 import "./interfaces/IMintableERC20.sol";
 import "./utils/Clonable.sol";
@@ -15,8 +16,10 @@ import "./utils/Clonable.sol";
  * @notice contract only supports tokens implementing IERC20Metadata
  * @notice contract does not support tokens using Fee-on-transfer
  */
-contract MigrateToken is Clonable {
+contract MigrateToken is Clonable, Pausable {
     using SafeERC20 for IERC20;
+
+    bytes32 private constant PAUSE_ROLE = keccak256("PAUSE_ROLE");
     
     address public oldToken; // old token this migration contract takes as input
     address public newToken; // new token this migration contract returns as output
@@ -40,6 +43,7 @@ contract MigrateToken is Clonable {
     error MissingNewToken();
     error MissingConversionRatio();
     error MissingBurnAddress();
+    error ZeroAmountOut();
     error MissingAllowance(address token, uint256 allowance, uint256 amountNeeded);
     error NotEnoughBalance(address token, uint256 balance, uint256 amountNeeded, address holder);
 
@@ -52,24 +56,53 @@ contract MigrateToken is Clonable {
         address _oldToken,
         address _newToken,
         uint256 _conversionRatio,
-	bool _isOldTokenBurnable,
-	bool _isNewTokenMintable,
-	address _burnAddress)
-	external payable onlyOwner
+        bool _isOldTokenBurnable,
+        bool _isNewTokenMintable,
+        address _burnAddress)
+        external payable onlyRole(DEFAULT_ADMIN_ROLE)
     {
         if (oldToken != address(0)) revert AlreadyInitialized();
         if (_oldToken == address(0)) revert MissingOldToken();
         if (_newToken == address(0)) revert MissingNewToken();
         if (_conversionRatio == 0) revert MissingConversionRatio();
-	if (!_isOldTokenBurnable && _burnAddress == address(0)) revert MissingBurnAddress();
+        if (!_isOldTokenBurnable && _burnAddress == address(0)) revert MissingBurnAddress();
         oldToken = _oldToken;
         newToken = _newToken;
         conversionRatio = _conversionRatio;
         oldTokenPrecision = 10 ** IERC20Metadata(_oldToken).decimals();
-	isOldTokenBurnable = _isOldTokenBurnable;
-	isNewTokenMintable = _isNewTokenMintable;
-	burnAddress = _burnAddress;
-	emit Initialized(_oldToken, _newToken, _conversionRatio, _isOldTokenBurnable, _isNewTokenMintable, _burnAddress);
+        isOldTokenBurnable = _isOldTokenBurnable;
+        isNewTokenMintable = _isNewTokenMintable;
+        burnAddress = _burnAddress;
+        _grantRole(PAUSE_ROLE, msg.sender);
+        emit Initialized(_oldToken,
+                         _newToken,
+                         _conversionRatio,
+                         _isOldTokenBurnable,
+                         _isNewTokenMintable,
+                         _burnAddress);
+    }
+
+    /*
+     * @dev pause migration
+     */
+    function pause() external onlyRole(PAUSE_ROLE) {
+        _pause();
+    }
+
+    /*
+     * @dev unpause migration
+     */
+    function unpause() external onlyRole(PAUSE_ROLE) {
+        _unpause();
+    }
+    
+    /*
+     * @dev recover preminted tokens locked in migration contract
+     */
+    function recoverTokens(uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        address _newToken = newToken;
+        _requireTokenBalance(_newToken, _amount, address(this));
+        IERC20(_newToken).safeTransfer(msg.sender, _amount);
     }
 
     /*
@@ -97,21 +130,22 @@ contract MigrateToken is Clonable {
     /*
      * @dev private function to do the actual migration
      */
-    function _migrateTokens(uint256 _oldTokenAmount) private {
+    function _migrateTokens(uint256 _oldTokenAmount) private whenNotPaused {
         address _oldToken = oldToken;
-	      if (isOldTokenBurnable) {
-	          IBurnableERC20(_oldToken).burnFrom(msg.sender, _oldTokenAmount);
-	      } else {
-            IERC20(oldToken).safeTransferFrom(msg.sender, burnAddress, _oldTokenAmount);	
-	      }
+        if (isOldTokenBurnable) {
+            IBurnableERC20(_oldToken).burnFrom(msg.sender, _oldTokenAmount);
+        } else {
+            IERC20(_oldToken).safeTransferFrom(msg.sender, burnAddress, _oldTokenAmount);
+        }
         uint256 _newTokenAmount = _oldTokenAmount * conversionRatio / oldTokenPrecision;
+        if (_newTokenAmount == 0) revert ZeroAmountOut();
         address _newToken = newToken;
         if (isNewTokenMintable) {
-	          IMintableERC20(_newToken).mint(msg.sender, _newTokenAmount);
-	      } else {
-	          _requireTokenBalance(newToken, _newTokenAmount, address(this));
-            IERC20(newToken).safeTransfer(msg.sender, _newTokenAmount);
- 	      }
+            IMintableERC20(_newToken).mint(msg.sender, _newTokenAmount);
+        } else {
+            _requireTokenBalance(_newToken, _newTokenAmount, address(this));
+            IERC20(_newToken).safeTransfer(msg.sender, _newTokenAmount);
+        }
         emit Migrated(msg.sender, _oldToken, _newToken, _oldTokenAmount, _newTokenAmount);
     }
     

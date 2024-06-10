@@ -8,14 +8,16 @@ import { ZeroAddress } from "ethers";
 
 const tx_options = {gasLimit:28500000, gasPrice: 50000000000};
 
+const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
 describe("test Clonable", function () {
   async function deployClonable() {
-      const [owner, user] = await ethers.getSigners();
+      const [defaultAdmin, user] = await ethers.getSigners();
 
       const clonable_CF = await ethers.getContractFactory("Clonable");
       const clonableImplementation = await clonable_CF.deploy();
 
-      return { clonable_CF, clonableImplementation, owner, user };
+      return { clonable_CF, clonableImplementation, defaultAdmin, user };
   }
 
   async function getCloneFromTx(tx: any, contract: any) {
@@ -28,51 +30,38 @@ describe("test Clonable", function () {
   }
 
   async function getClone() {
-      const { clonable_CF, clonableImplementation, owner, user } = await loadFixture(deployClonable);
+      const { clonable_CF, clonableImplementation, defaultAdmin, user } = await loadFixture(deployClonable);
 
-      const newInstanceAddress = await getCloneFromTx(await clonableImplementation.connect(owner).getClone(), clonableImplementation);
+      const newInstanceAddress = await getCloneFromTx(await clonableImplementation.connect(defaultAdmin).getClone(), clonableImplementation);
       const clonable = await clonable_CF.attach(newInstanceAddress);
-      return { clonable, owner, user };
+      return { clonable, defaultAdmin, user };
   }
 
   describe("Deployment", function () {
 
-    it("Should be able to clone correctly", async function () {
-        const { clonableImplementation, owner } = await loadFixture(deployClonable);
+    it("Implementation Should grant DEFAULT_ADMIN_ROLE to deployer", async function () {
+        const { clonableImplementation, defaultAdmin } = await loadFixture(deployClonable);
+        expect(await clonableImplementation.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.true;
+    });
 
-        const newInstanceAddress = await getCloneFromTx(await clonableImplementation.connect(owner).getClone(), clonableImplementation);
+    it("Should be able to clone correctly and have DEFAULT_ADMIN_ROLE on cloned instance", async function () {
+        const { clonable_CF, clonableImplementation, defaultAdmin } = await loadFixture(deployClonable);
+
+        const newInstanceAddress = await getCloneFromTx(await clonableImplementation.connect(defaultAdmin).getClone(), clonableImplementation);
         
         expect(newInstanceAddress)
             .to.not.equal(ZeroAddress);
         expect(newInstanceAddress)
             .to.not.equal(await clonableImplementation.getAddress());
-        expect(owner)
-            .to.equal(await owner.getAddress());
+
+        const clonable = await clonable_CF.attach(newInstanceAddress);
+        expect(await clonable.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.true;
     });
 
-    it("Should not be able to change ownership after clone", async () => {
-        const { clonable, owner, user } = await getClone();
-        await expect(clonable.connect(owner).setOwnerAfterClone(user.address))
-            .to.be.revertedWith("ERR_REINIT");
-    });
-
-    it("Should not be able to transfer ownership by non-owner", async () => {
-        const { clonable, owner, user } = await getClone();
-        await expect(clonable.connect(user).transferOwnership(user.address))
-            .to.be.revertedWith("ERR_OWNER");
-    });
-
-    it("Should not be able to transfer ownership to zero", async () => {
-        const { clonable, owner, user } = await getClone();
-        await expect(clonable.connect(owner).transferOwnership(ZeroAddress))
-            .to.be.revertedWith("ERR_ZERO");
-    });
-
-    it("Should be able to transfer ownership by owner", async () => {
-        const { clonable, owner, user } = await getClone();
-        await clonable.connect(owner).transferOwnership(user.address);
-        expect(await clonable.owner())
-            .to.be.equal(user.address);
+    it("Should not be able to call setDefaultAdmin after clone", async () => {
+        const { clonable, defaultAdmin, user } = await getClone();
+        await expect(clonable.connect(defaultAdmin).setDefaultAdmin(user.address))
+            .to.be.revertedWithCustomError(clonable, "AlreadyInitializedRBAC");
     });
 
   });
