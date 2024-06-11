@@ -4,8 +4,6 @@ const { JsonRpcProvider, parseUnits } = require("ethers");
 let provider;
 let tx;
 
-const OWNER_MULTISIG = process.env.OWNER_MULTISIG;
-
 const ETH_ASI = process.env.ETH_ASI; // mainnet ASI (forked)
 
 const ETH_AGIX = process.env.ETH_AGIX; // mainnet AGIX
@@ -25,8 +23,8 @@ const AGIX_ASI_CONVERSION_RATIO = parseUnits("0.433350", 18);
 const OCEAN_ASI_CONVERSION_RATIO = parseUnits("0.433226", 18);
 
 const txOptions = {
-  gasLimit: 3e5,
-  maxFeePerGas: ethers.parseUnits("15", "gwei"),
+  // gasLimit: 3e5,
+  // maxFeePerGas: ethers.parseUnits("15", "gwei"),
   // maxPriorityFeePerGas: ethers.parseUnits("1.5", "gwei"),
 };
 
