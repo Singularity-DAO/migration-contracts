@@ -24,6 +24,14 @@ const config: HardhatUserConfig = {
     sepolia: {
       url: process.env.RPC,
       accounts: [process.env.PRIVATE_KEY || ""],
+    },
+    "bsc-testnet": {
+      url: process.env.RPC,
+      accounts: [process.env.PRIVATE_KEY || ""],
+    },
+    "polygon-amoy": {
+      url: process.env.RPC,
+      accounts: [process.env.PRIVATE_KEY || ""],
     }
   },
   etherscan: {
